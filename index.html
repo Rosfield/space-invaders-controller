@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#080d1c">
+<title>Space Invaders — Controle BLE</title>
+<style>
+:root{color-scheme:dark;--bg:#080d1c;--panel:#111b32;--line:#263858;--cyan:#55d9f2;--white:#f3f7ff;--muted:#9aabc8}
+*{box-sizing:border-box}
+body{margin:0;min-height:100svh;background:radial-gradient(ellipse at top,#172b50 0,#080d1c 58%);color:var(--white);font-family:system-ui,-apple-system,sans-serif;display:flex;justify-content:center;align-items:center;padding:24px 18px calc(24px + env(safe-area-inset-bottom))}
+main{width:min(100%,430px)}
+header{text-align:center;margin-bottom:24px}
+.kicker{color:var(--cyan);letter-spacing:.24em;font-size:.72rem;font-weight:800}
+h1{margin:8px 0 4px;font-size:clamp(1.8rem,8vw,2.5rem);letter-spacing:.04em}
+.subtitle{margin:0;color:var(--muted);font-size:.9rem}
+.panel{background:rgba(17,27,50,.92);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 18px 50px #0005}
+#connect{width:100%;border:0;border-radius:14px;background:var(--cyan);color:#071321;font-weight:850;font-size:1rem;padding:15px 12px}
+#connect:disabled{opacity:.6}
+#status{color:var(--muted);font-size:.82rem;margin:12px 2px 0;min-height:1.3em}
+.dot{display:inline-block;width:9px;height:9px;background:#71809b;border-radius:50%;margin-right:7px}
+.dot.ok{background:#50d890;box-shadow:0 0 12px #50d89088}
+.controls{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.control{min-height:106px;border:1px solid #314768;border-radius:20px;color:var(--white);background:linear-gradient(145deg,#1b3155,#12213d);font-size:1rem;font-weight:850;letter-spacing:.05em;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.control .symbol{font-size:2rem;line-height:1;color:var(--cyan)}
+.control:active{transform:scale(.98);background:#29466e}
+.control:disabled{opacity:.35}
+.fire{grid-column:1/-1;min-height:90px;background:linear-gradient(145deg,#8c2939,#561c32);border-color:#b34455}
+.fire .symbol{color:#fff}
+.start{grid-column:1/-1;min-height:64px;background:linear-gradient(145deg,#17634f,#104337);border-color:#278b70}
+.start .symbol{font-size:1.4rem;color:#b7ffe4}
+.hint{color:var(--muted);text-align:center;font-size:.78rem;line-height:1.45;margin:16px 6px 0}
+footer{text-align:center;color:#71809b;font-size:.7rem;margin-top:18px;letter-spacing:.12em}
+</style>
+</head>
+<body>
+<main>
+<header><div class="kicker">CONTROLE BLUETOOTH</div><h1>SPACE INVADERS</h1><p class="subtitle">Controle virtual para ESP32</p></header>
+<section class="panel">
+<button id="connect">CONECTAR ESP32</button>
+<p id="status"><span class="dot"></span>Desconectado</p>
+<div class="controls">
+<button class="control" data-command="LEFT" disabled><span class="symbol">◀</span>ESQUERDA</button>
+<button class="control" data-command="RIGHT" disabled><span class="symbol">▶</span>DIREITA</button>
+<button class="control fire" data-command="FIRE" disabled><span class="symbol">✦</span>ATIRAR</button>
+<button class="control start" data-command="START" disabled><span class="symbol">▶</span>START / REINICIAR</button>
+</div>
+</section>
+<p class="hint">Conecte o ESP32 antes de jogar. Cada toque envia um comando ao dispositivo.</p>
+<footer>ESP32 · BLE · SPACE INVADERS</footer>
+</main>
+<script>
+(() => {
+  const SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
+  const CHARACTERISTIC_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
+  const encoder = new TextEncoder();
+  const connectButton = document.getElementById('connect');
+  const statusText = document.getElementById('status');
+  const commandButtons = [...document.querySelectorAll('[data-command]')];
+  let device = null, characteristic = null, writeQueue = Promise.resolve();
+
+  function setStatus(message, connected = false) {
+    statusText.innerHTML = `<span class="dot ${connected ? 'ok' : ''}"></span>${message}`;
+    commandButtons.forEach(button => button.disabled = !connected);
+    connectButton.textContent = connected ? 'DESCONECTAR' : 'CONECTAR ESP32';
+  }
+
+  async function connect() {
+    if (device?.gatt?.connected) {
+      device.gatt.disconnect();
+      characteristic = null;
+      setStatus('Desconectado');
+      return;
+    }
+    if (!navigator.bluetooth) {
+      setStatus('Bluetooth Web não disponível. Abra esta página no Bluefy no iPhone.');
+      return;
+    }
+    try {
+      connectButton.disabled = true;
+      setStatus('Procurando SpaceInvadersESP32…');
+      device = await navigator.bluetooth.requestDevice({
+        filters: [{ name: 'SpaceInvadersESP32' }],
+        optionalServices: [SERVICE_UUID]
+      });
+      device.addEventListener('gattserverdisconnected', () => {
+        characteristic = null;
+        setStatus('Conexão perdida');
+      });
+      const server = await device.gatt.connect();
+      const service = await server.getPrimaryService(SERVICE_UUID);
+      characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+      setStatus('Conectado: ' + (device.name || 'ESP32'), true);
+    } catch (error) {
+      setStatus(error.name === 'NotFoundError' ? 'Dispositivo não selecionado.' : 'Falha ao conectar: ' + error.message);
+    } finally {
+      connectButton.disabled = false;
+    }
+  }
+
+  function send(command) {
+    if (!characteristic) return;
+    const data = encoder.encode(command);
+    writeQueue = writeQueue.then(async () => {
+      if (!characteristic) return;
+      if (characteristic.properties.write && characteristic.writeValueWithResponse) {
+        await characteristic.writeValueWithResponse(data);
+      } else if (characteristic.properties.writeWithoutResponse && characteristic.writeValueWithoutResponse) {
+        await characteristic.writeValueWithoutResponse(data);
+      } else {
+        throw new Error('A característica não permite escrita.');
+      }
+      setStatus('Conectado · último comando: ' + command, true);
+    }).catch(error => setStatus('Erro ao enviar: ' + error.message));
+  }
+
+  connectButton.addEventListener('click', connect);
+  commandButtons.forEach(button => button.addEventListener('click', () => send(button.dataset.command)));
+  setStatus('Desconectado');
+})();
+</script>
+</body>
+</html>
