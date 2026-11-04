@@ -6,8 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#202027">
 <title>Space Invaders - NES Controller</title>
+
 <style>
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -19,7 +21,9 @@ body {
   font-family: Arial, sans-serif;
   color: white;
 }
+
 .console { width: min(100%, 440px); }
+
 .topline {
   display: flex;
   justify-content: space-between;
@@ -29,15 +33,20 @@ body {
   letter-spacing: 2px;
   font-weight: bold;
 }
+
 .status { display: flex; gap: 8px; align-items: center; }
+
 .led { width: 9px; height: 9px; border-radius: 50%; background: #777; }
+
 .led.on { background: #72d69b; box-shadow: 0 0 10px #72d69b; }
+
 .shell {
   background: linear-gradient(145deg, #dedede, #b9b9bf);
   border-radius: 19px;
   padding: 20px 16px;
   box-shadow: 0 12px 0 #777780, 0 20px 35px #0008;
 }
+
 .screen {
   background: #11151b;
   border: 5px solid #85858d;
@@ -46,8 +55,11 @@ body {
   text-align: center;
   margin-bottom: 18px;
 }
+
 h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
+
 .subtitle { margin-top: 5px; color: #9ba4ae; font-size: 10px; letter-spacing: 2px; }
+
 .connect {
   width: 100%;
   padding: 13px;
@@ -60,7 +72,9 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
   box-shadow: 0 4px 0 #17171c;
   cursor: pointer;
 }
+
 .connect:active { transform: translateY(3px); box-shadow: none; }
+
 .message {
   min-height: 18px;
   text-align: center;
@@ -68,12 +82,14 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
   font-size: 12px;
   margin: 14px 0 20px;
 }
+
 .controls {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   align-items: center;
 }
+
 .label {
   color: #55555e;
   text-align: center;
@@ -82,18 +98,21 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
   letter-spacing: 2px;
   margin-bottom: 12px;
 }
+
 .dpad-area {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 150px;
 }
+
 .dpad {
   width: 140px;
   height: 140px;
   position: relative;
   filter: drop-shadow(0 5px 0 #777780);
 }
+
 .dpad button {
   position: absolute;
   border: 1px solid #eee;
@@ -104,16 +123,24 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
   cursor: pointer;
   touch-action: manipulation;
 }
+
 .dpad button:active {
   background: #222;
   transform: translateY(2px);
 }
+
 .up, .down { width: 46px; height: 50px; left: 47px; }
+
 .up { top: 0; border-radius: 7px 7px 2px 2px; }
+
 .down { bottom: 0; border-radius: 2px 2px 7px 7px; }
+
 .left, .right { width: 50px; height: 46px; top: 47px; }
+
 .left { left: 0; border-radius: 7px 2px 2px 7px; }
+
 .right { right: 0; border-radius: 2px 7px 7px 2px; }
+
 .center {
   position: absolute;
   width: 46px;
@@ -122,6 +149,7 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
   left: 47px;
   background: #3e3e46;
 }
+
 .actions {
   display: flex;
   justify-content: center;
@@ -129,12 +157,14 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
   gap: 13px;
   min-height: 150px;
 }
+
 .action-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 9px;
 }
+
 .action {
   width: 62px;
   height: 62px;
@@ -148,21 +178,25 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
   cursor: pointer;
   touch-action: manipulation;
 }
+
 .action:active {
   transform: translateY(4px);
   box-shadow: 0 2px 0 #6f1425;
 }
+
 .action-name {
   color: #55555e;
   font-size: 10px;
   font-weight: bold;
 }
+
 .small-buttons {
   display: flex;
   justify-content: center;
   gap: 18px;
   margin-top: 20px;
 }
+
 .small-button {
   border: 0;
   border-radius: 20px;
@@ -173,6 +207,7 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
   font-weight: bold;
   box-shadow: 0 3px 0 #777780;
 }
+
 .foot {
   text-align: center;
   color: #888;
@@ -182,8 +217,11 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
 }
 </style>
 </head>
+
 <body>
+
 <main class="console">
+
   <div class="topline">
     <span>8-BIT SYSTEM</span>
     <span class="status">
@@ -193,23 +231,30 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
   </div>
 
   <section class="shell">
+
     <div class="screen">
       <h1>SPACE INVADERS</h1>
       <div class="subtitle">PLAYER 1 · BLE CONTROLLER</div>
     </div>
 
     <button class="connect" id="connectBtn">CONECTAR ESP32</button>
+
     <p class="message" id="message">Conecte-se para jogar.</p>
 
     <div class="controls">
+
       <section>
         <div class="label">D-PAD</div>
+
         <div class="dpad-area">
           <div class="dpad">
-            <button class="up" data-command="RIGHT">▲</button>
-            <button class="down" data-command="LEFT">▼</button>
+
+            <!-- SETAS ATUALIZADAS -->
+            <button class="up" data-command="LEFT">▲</button>
+            <button class="down" data-command="RIGHT">▼</button>
             <button class="left" data-command="LEFT">◀</button>
             <button class="right" data-command="RIGHT">▶</button>
+
             <div class="center"></div>
           </div>
         </div>
@@ -217,30 +262,39 @@ h1 { margin: 0; font-size: 23px; letter-spacing: 2px; }
 
       <section>
         <div class="label">ACTION</div>
+
         <div class="actions">
+
           <div class="action-wrap">
             <button class="action" data-command="FIRE">B</button>
             <span class="action-name">FIRE</span>
           </div>
+
           <div class="action-wrap">
             <button class="action" data-command="START">A</button>
             <span class="action-name">START</span>
           </div>
+
         </div>
       </section>
+
     </div>
 
     <div class="small-buttons">
       <button class="small-button" id="selectBtn">SELECT</button>
       <button class="small-button" data-command="START">START</button>
     </div>
+
   </section>
 
   <div class="foot">INSERT COIN · READY PLAYER ONE</div>
+
 </main>
 
 <script>
+
 const SERVICE_UUID = '4fafc201-1fb5-459e-8fcc-c5c9c331914b';
+
 const CHARACTERISTIC_UUID = 'beb5483e-36e1-4688-b7f5-ea07361b26a8';
 
 let device = null;
@@ -252,20 +306,26 @@ const statusText = document.getElementById('statusText');
 const led = document.getElementById('led');
 
 function setStatus(connected) {
+
   statusText.textContent = connected ? 'CONNECTED' : 'DISCONNECTED';
+
   led.classList.toggle('on', connected);
+
   connectBtn.textContent = connected
     ? 'DESCONECTAR ESP32'
     : 'CONECTAR ESP32';
+
 }
 
 async function connectBLE() {
+
   if (!navigator.bluetooth) {
     message.textContent = 'Abra esta página no Bluefy.';
     return;
   }
 
   try {
+
     connectBtn.disabled = true;
     message.textContent = 'Procurando ESP32...';
 
@@ -275,12 +335,15 @@ async function connectBLE() {
     });
 
     device.addEventListener('gattserverdisconnected', () => {
+
       characteristic = null;
       setStatus(false);
       message.textContent = 'ESP32 desconectado.';
+
     });
 
     const server = await device.gatt.connect();
+
     const service = await server.getPrimaryService(SERVICE_UUID);
 
     characteristic = await service.getCharacteristic(
@@ -291,20 +354,27 @@ async function connectBLE() {
     message.textContent = 'Conectado! Bom jogo.';
 
   } catch (error) {
+
     console.error(error);
     message.textContent = 'Erro: ' + error.message;
+
   } finally {
+
     connectBtn.disabled = false;
+
   }
+
 }
 
 async function sendCommand(command) {
+
   if (!characteristic) {
     message.textContent = 'Conecte o ESP32 primeiro.';
     return;
   }
 
   try {
+
     const data = new TextEncoder().encode(command);
 
     if (characteristic.properties.write) {
@@ -316,28 +386,39 @@ async function sendCommand(command) {
     message.textContent = 'Último comando: ' + command;
 
   } catch (error) {
+
     console.error(error);
     message.textContent = 'Falha ao enviar: ' + error.message;
+
   }
+
 }
 
 connectBtn.addEventListener('click', async () => {
+
   if (device && device.gatt && device.gatt.connected) {
     device.gatt.disconnect();
   } else {
     await connectBLE();
   }
+
 });
 
 document.querySelectorAll('[data-command]').forEach(button => {
+
   button.addEventListener('click', () => {
     sendCommand(button.dataset.command);
   });
+
 });
 
 document.getElementById('selectBtn').addEventListener('click', () => {
+
   message.textContent = 'SELECT ainda não possui função no jogo.';
+
 });
+
 </script>
+
 </body>
 </html>
